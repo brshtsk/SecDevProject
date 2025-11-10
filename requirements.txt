@@ -1,0 +1,8 @@
+fastapi==0.112.2
+uvicorn==0.30.5
+sqlalchemy>=2.0.0
+passlib>=1.7.4
+argon2-cffi>=21.3.0
+python-multipart>=0.0.6
+python-jose[cryptography]==3.3.0
+psycopg2-binary==2.9.*

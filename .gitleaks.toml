@@ -1,0 +1,6 @@
+title = "Gitleaks baseline (extend in P10)"
+[[rules]]
+description = "Generic secret (example disabled)"
+regex = '''(?i)dummy-never-match'''
+entropy = 5.0
+filename = "nowhere"

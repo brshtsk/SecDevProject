@@ -1,0 +1,48 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Lint & Format
+        run: |
+          ruff check --output-format=github .
+          black --check .
+          isort --check-only .
+
+      - name: Tests
+        run: pytest -q
+
+      # Только на push, так как на PR нет секретов
+      - name: Secret policy check (NFR-02)
+        if: ${{ github.event_name == 'push' }}
+        run: python scripts/check_secret_policy.py
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_ROTATED_AT: ${{ secrets.SECRET_ROTATED_AT }}
+
+      - name: Pre-commit (all files)
+        run: pre-commit run --all-files
+        env:
+          SKIP: no-commit-to-branch

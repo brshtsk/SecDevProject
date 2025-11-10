@@ -1,0 +1,38 @@
+version: '3.8'
+
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+
+  vault-agent:
+    image: hashicorp/vault:1.15
+    command: [ "vault", "agent", "-config=/vault/agent.hcl" ]
+    volumes:
+      - ./vault/agent.hcl:/vault/agent.hcl:ro
+      - ./vault/templates:/vault/templates:ro
+      - ./vault/role_id:/vault/role_id:ro
+      - ./vault/secret_id:/vault/secret_id:ro
+      - ./vault/rendered:/vault/rendered
+    environment:
+      - VAULT_ADDR=http://host.docker.internal:8200
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'test -f /vault/rendered/app.env && test -f /vault/rendered/db.env'" ]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+
+
+networks:
+  default:
+    name: app-network
+
+
+volumes:
+  postgres_data:

@@ -1,0 +1,35 @@
+version: '3.8'
+
+
+services:
+  app:
+    profiles: [ "dev" ]
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./vault/rendered/app.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite:///./data/app.db
+      - RATE_LIMIT_POST_PER_MIN_PER_IP=10
+      - RATE_LIMIT_BURST=2
+      - RATE_LIMIT_LOGIN_PER_10MIN_PER_IP=5
+      - RATE_LIMIT_LOGIN_PER_10MIN_PER_ACCOUNT=5
+      - RATE_LIMIT_LOGIN_BLOCK_SECONDS=900
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      redis:
+        condition: service_started
+      vault-agent:
+        condition: service_healthy
+    networks:
+      - default

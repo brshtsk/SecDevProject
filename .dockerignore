@@ -1,0 +1,17 @@
+.git
+.gitignore
+.gitattributes
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite
+*.db
+.venv/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+node_modules/
+.env

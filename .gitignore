@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.venv/
+.env
+.pytest_cache/
+.coverage
+# IDE
+.vscode/
+.idea/
+# OS
+.DS_Store
+# Vault
+vault/rendered
+vault/role_id
+vault/secret_id
