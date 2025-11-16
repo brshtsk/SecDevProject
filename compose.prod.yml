@@ -3,8 +3,20 @@ version: '3.8'
 
 services:
   app:
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - app_data:/app/data
     profiles: [ "prod" ]
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
     ports:
       - "8000:8000"
     env_file:
@@ -20,7 +32,7 @@ services:
     # DATABASE_URL и SECRET_KEY приходят из Vault
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      test: [ "CMD", "python", "-c", "import sys,urllib.request; exit(0) if urllib.request.urlopen('http://localhost:8000/health', timeout=4).getcode()==200 else sys.exit(1)" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -58,3 +70,6 @@ services:
         condition: service_healthy
     networks:
       - default
+
+volumes:
+  app_data: {}
