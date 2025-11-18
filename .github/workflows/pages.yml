@@ -1,0 +1,53 @@
+name: Deploy Docs to GitHub Pages
+on:
+  push:
+    branches:
+      - P08-cicd-minimal
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/pages.yml'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache pip (uses lockfile hash)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/pip/wheels
+          key: pip-${{ runner.os }}-py-3.11-${{ hashFiles('**/requirements.lock') }}
+          restore-keys: |
+            pip-${{ runner.os }}-py-3.11-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.lock ]; then python -m pip install -r requirements.lock; else python -m pip install mkdocs mkdocs-material; fi
+
+      - name: Build site
+        run: mkdocs build -d site
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+
+# File: mkdocs.yml
+site_name: SecDevProject
+nav:
+  - Home: index.md
+theme:
+  name: material
+docs_dir: docs
