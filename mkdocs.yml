@@ -1,0 +1,17 @@
+site_name: SecDevProject
+site_description: Документация проекта SecDevProject
+site_url: https://brshtsk.github.io/SecDevProject
+repo_url: https://github.com/brshtsk/SecDevProject
+edit_uri: blob/main
+docs_dir: docs
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - Changelog: changelog.md
+
+plugins:
+  - search

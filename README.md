@@ -1,3 +1,5 @@
+[![CI](https://github.com/brshtsk/SecDevProject/actions/workflows/ci.yml/badge.svg?branch=P08-cicd-minimal)](https://github.com/brshtsk/SecDevProject/actions/workflows/ci.yml)
+
 # Idea Voting Board
 
 Доска голосований за идеи команды
