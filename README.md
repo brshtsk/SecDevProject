@@ -134,6 +134,7 @@ docker compose up --build
 - Артефакты:
   - EVIDENCE/P10/semgrep.sarif
   - EVIDENCE/P10/gitleaks.json
+  - EVIDENCE/P10/sast_summary.md
 - Политика:
   - Findings не ломают сборку (|| true), триаж в PR-описании
   - Ложные срабатывания добавляются в allowlist .gitleaks.toml с комментарием
