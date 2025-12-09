@@ -1,0 +1,26 @@
+title = "course default gitleaks config"
+
+[extend]
+# Используем встроенные правила по умолчанию
+
+[allowlist]
+description = "ignore non-sensitive patterns and evidence"
+paths = [
+  "EVIDENCE/"   # отчёты и артефакты
+]
+commits = []
+regexes = [
+  '''TEST_SECRET_DO_NOT_USE''',  # пример безопасной заглушки
+]
+
+# Исключение для файлов тестовых фикстур
+[[allowlist.regexTarget]]
+target = "file"
+regex = '''(^|/)tests/(fixtures|data)/.*'''
+description = "ignore test fixtures (часто содержат заглушки и псевдо-ключи)"
+
+# Исключение для .env.sample
+[[allowlist.regexTarget]]
+target = "file"
+regex = '''(^|/)\.env\.sample$'''
+description = "ignore sample env files (без реальных секретов)"

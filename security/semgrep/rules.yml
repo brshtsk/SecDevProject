@@ -1,8 +1,3 @@
-# ToDo: использовать шаблон
-
-# Пример базового файла правил Semgrep для курса.
-# Можно заменить/расширить под свой проект.
-
 rules:
   - id: py-unsafe-html-echo
     languages: [python]
@@ -14,3 +9,19 @@ rules:
     metadata:
       category: security
       cwe: "CWE-79: Cross-site Scripting"
+
+  - id: py-subprocess-shell-true
+    languages: [python]
+    message: "Опасный вызов subprocess с shell=True (риск командной инъекции)"
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.run(..., shell=True, ...)
+          - pattern: subprocess.Popen(..., shell=True, ...)
+          - pattern: subprocess.call(..., shell=True, ...)
+          - pattern: os.system($CMD)
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      references:
+        - https://docs.python.org/3/library/subprocess.html#security-considerations

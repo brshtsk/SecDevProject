@@ -123,3 +123,17 @@ docker compose up --build
   - EVIDENCE/P09/sbom.json
   - EVIDENCE/P09/sca_report.json
   - EVIDENCE/P09/sca_summary.md
+
+## Security: SAST & Secrets
+
+- Инструменты:
+  - SAST: Semgrep (профиль p/ci + правила из security/semgrep/rules.yml)
+  - Secrets: Gitleaks (конфиг security/.gitleaks.toml)
+- Запуск: GitHub Actions workflow “Security SAST & Secrets”
+  - Триггеры: workflow_dispatch, push по *.py, security-конфигах и самому workflow
+- Артефакты:
+  - EVIDENCE/P10/semgrep.sarif
+  - EVIDENCE/P10/gitleaks.json
+- Политика:
+  - Findings не ломают сборку (|| true), триаж в PR-описании
+  - Ложные срабатывания добавляются в allowlist .gitleaks.toml с комментарием
