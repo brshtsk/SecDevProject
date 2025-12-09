@@ -111,3 +111,15 @@ docker compose up --build
 - `GET /health` → `{"status": "ok"}`
 - `POST /items?name=...` — демо-сущность
 - `GET /items/{id}`
+
+## Security: SBOM & SCA
+
+- Инструменты:
+  - SBOM: Syft (CycloneDX JSON)
+  - SCA: Grype по SBOM
+- Запуск: GitHub Actions workflow “Security SBOM & SCA”
+  - Триггеры: workflow_dispatch, push/pull_request по *.py, requirements*.txt и самому workflow
+- Артефакты (доказательство того, что CI действительно сделал SBOM и SCA для конкретного коммита):
+  - EVIDENCE/P09/sbom.json
+  - EVIDENCE/P09/sca_report.json
+  - EVIDENCE/P09/sca_summary.md
