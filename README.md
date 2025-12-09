@@ -123,4 +123,3 @@ docker compose up --build
   - EVIDENCE/P09/sbom.json
   - EVIDENCE/P09/sca_report.json
   - EVIDENCE/P09/sca_summary.md
-
