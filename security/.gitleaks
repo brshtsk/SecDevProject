@@ -1,0 +1,19 @@
+# ToDo: использовать шаблон
+
+# Пример минимальной конфигурации Gitleaks для курса.
+# Скопируйте в security/.gitleaks.toml и правьте под себя.
+
+title = "course default gitleaks config"
+
+[extend]
+# Используем встроенные правила по умолчанию
+
+[allowlist]
+description = "ignore non-sensitive patterns"
+paths = [
+  "EVIDENCE/",   # отчёты и артефакты
+]
+commits = []
+regexes = [
+  '''TEST_SECRET_DO_NOT_USE''',
+]
