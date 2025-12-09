@@ -1,6 +1,4 @@
-# Шаблон, ToDo: сделать под свой проект
-
-name: Security - SBOM & SCA
+name: Security SBOM & SCA
 
 on:
   workflow_dispatch:
@@ -9,6 +7,13 @@ on:
       - "**/*.py"
       - "requirements*.txt"
       - ".github/workflows/ci-sbom-sca.yml"
+      - "policy/waivers.yml"
+  pull_request:
+    paths:
+      - "**/*.py"
+      - "requirements*.txt"
+      - ".github/workflows/ci-sbom-sca.yml"
+      - "policy/waivers.yml"
 
 permissions:
   contents: read
@@ -29,6 +34,11 @@ jobs:
       - name: Ensure evidence dirs
         run: mkdir -p EVIDENCE/P09
 
+      - name: Install jq
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+
       - name: Generate SBOM (Syft CycloneDX)
         run: |
           docker run --rm -v $PWD:/work -w /work anchore/syft:latest \
@@ -43,9 +53,22 @@ jobs:
           jq '[.matches[].vulnerability.severity] | group_by(.) | map({(.[0]): length}) | add' \
             EVIDENCE/P09/sca_report.json >> EVIDENCE/P09/sca_summary.md || true
 
+      - name: Record commit info
+        run: echo "SBOM/SCA generated for commit $GITHUB_SHA" >> EVIDENCE/P09/commit_info.txt
+
+      - name: Publish SCA summary to job summary
+        if: always()
+        run: |
+          {
+            echo "## SCA summary";
+            cat EVIDENCE/P09/sca_summary.md || true;
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload SBOM/SCA evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: P09_EVIDENCE
-          path: EVIDENCE/P09
+          path: |
+            EVIDENCE/P09
+            policy/waivers.yml
