@@ -7,7 +7,7 @@ on:
       - "Dockerfile"
       - "iac/**"
       - "k8s/**"
-      - "../../deploy/**"
+      - "deploy/**"
       - "security/**"
       - ".github/workflows/ci-iac-container.yml"
 
@@ -37,35 +37,24 @@ jobs:
       - name: Hadolint Dockerfile
         run: |
           docker run --rm -v $PWD:/work hadolint/hadolint \
-            hadolint -f json -c /work/security/hadolint.yaml /work/Dockerfile \
-            > EVIDENCE/P12/hadolint_report.json || true
+            hadolint -f json /work/Dockerfile > EVIDENCE/P12/hadolint_report.json || true
 
       - name: Checkov IaC scan
         run: |
-          TARGET_DIR=""
-          if [ -d "iac" ]; then TARGET_DIR="iac"; fi
+          TARGET_DIR="iac"
           if [ -d "k8s" ]; then TARGET_DIR="k8s"; fi
           if [ -d "deploy" ]; then TARGET_DIR="deploy"; fi
-
-          if [ -z "$TARGET_DIR" ]; then
-            SCAN_PATH="/work"
-          else
-            SCAN_PATH="/work/${TARGET_DIR}"
-          fi
-
           docker run --rm -v $PWD:/work bridgecrew/checkov \
-            -d ${SCAN_PATH} \
-            --config-file /work/security/checkov.yaml \
-            -o json --compact \
-            > EVIDENCE/P12/checkov_report.json || true
+            -d /work/${TARGET_DIR} \
+            -o json \
+            --compact > EVIDENCE/P12/checkov_report.json || true
 
       - name: Trivy image scan
         run: |
           docker run --rm -v $PWD:/work aquasec/trivy \
             image app:local \
-            --config /work/security/trivy.yaml \
-            --format json \
-            --output /work/EVIDENCE/P12/trivy_report.json || true
+              --format json \
+              --output /work/EVIDENCE/P12/trivy_report.json || true
 
       - name: Upload P12 evidence
         if: always()
