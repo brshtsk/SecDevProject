@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "Dockerfile"
-      - "iac/**"
-      - "k8s/**"
-      - "deploy/**"
-      - "security/**"
-      - ".github/workflows/ci-iac-container.yml"
+      - 'Dockerfile'
+      - 'iac/**'
+      - 'k8s/**'
+      - 'deploy/**'
+      - 'security/**'
+      - '.github/workflows/ci-iac-container.yml'
 
 permissions:
   contents: read
@@ -39,13 +39,19 @@ jobs:
           docker run --rm -v $PWD:/work hadolint/hadolint \
             hadolint -f json /work/Dockerfile > EVIDENCE/P12/hadolint_report.json || true
 
-      - name: Checkov IaC scan
+      - name: Checkov IaC scan (all dirs)
         run: |
-          TARGET_DIR="iac"
-          if [ -d "k8s" ]; then TARGET_DIR="k8s"; fi
-          if [ -d "deploy" ]; then TARGET_DIR="deploy"; fi
+          DIRS=()
+          [ -d "iac" ] && DIRS+=("-d" "/work/iac")
+          [ -d "k8s" ] && DIRS+=("-d" "/work/k8s")
+          [ -d "deploy" ] && DIRS+=("-d" "/work/deploy")
+
+          if [ ${#DIRS[@]} -eq 0 ]; then
+            echo "Нет директорий для сканирования (iac, k8s, deploy)"; exit 0
+          fi
+
           docker run --rm -v $PWD:/work bridgecrew/checkov \
-            -d /work/${TARGET_DIR} \
+            "${DIRS[@]}" \
             -o json \
             --compact > EVIDENCE/P12/checkov_report.json || true
 
