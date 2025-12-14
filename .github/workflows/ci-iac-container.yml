@@ -54,7 +54,7 @@ jobs:
           fi
 
           docker run --rm -v $PWD:/work bridgecrew/checkov \
-            -d /work/${SCAN_PATH} \
+            -d ${SCAN_PATH} \
             --config-file /work/security/checkov.yaml \
             -o json --compact \
             > EVIDENCE/P12/checkov_report.json || true
