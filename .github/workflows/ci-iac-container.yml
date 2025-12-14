@@ -7,7 +7,7 @@ on:
       - "Dockerfile"
       - "iac/**"
       - "k8s/**"
-      - "deploy/**"
+      - "../../deploy/**"
       - "security/**"
       - ".github/workflows/ci-iac-container.yml"
 
