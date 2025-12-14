@@ -1,0 +1,15 @@
+checkov:
+  quiet: false
+  compact: true
+  soft_fail: true
+  framework:
+    - kubernetes
+    - terraform
+    - dockerfile
+  skip_checks:
+    - CKV_K8S_21  # Missing resource limits
+    - CKV_K8S_11  # Not using NetworkPolicy
+  enable_checks:
+    - CKV_K8S_37  # Image tag should be fixed (not latest)
+    - CKV_DOCKER_2 # Ensure non-root user in Dockerfile where possible
+output: json

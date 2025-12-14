@@ -1,0 +1,15 @@
+# yaml
+ignored:
+  - DL4000
+  - DL4005
+  - DL3059
+
+override:
+  - rule: DL3006
+    severity: error
+  - rule: DL3002
+    severity: warning
+  - rule: DL3007
+    severity: info
+
+trustedRegistries: []

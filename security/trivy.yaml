@@ -1,0 +1,20 @@
+scan:
+  scanners:
+    - vuln
+    - secret
+    - config
+severity:
+  - HIGH
+  - CRITICAL
+vuln:
+  ignore-unfixed: true
+  offline-db: false
+  skip-dirs: []
+  skip-files: []
+misconfiguration:
+  include-non-failures: true
+  severity:
+    - HIGH
+    - CRITICAL
+# Не падать, только собирать отчёт
+exit-code: 0
