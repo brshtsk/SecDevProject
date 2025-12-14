@@ -45,7 +45,9 @@ async def security_headers_middleware(request: Request, call_next):
 
     path = request.url.path
     if path in ("/", "/health"):
-        response.headers["Cache-Control"] = "no-store, no-cache, max-age=0, must-revalidate"
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, max-age=0, must-revalidate"
+        )
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
     elif path in ("/robots.txt", "/sitemap.xml"):
@@ -64,8 +66,8 @@ def sitemap():
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        '<url><loc>http://localhost:8080/</loc></url>'
-        '</urlset>'
+        "<url><loc>http://localhost:8080/</loc></url>"
+        "</urlset>"
     )
     return Response(content=xml, media_type="application/xml; charset=utf-8")
 
