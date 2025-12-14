@@ -54,15 +54,17 @@ jobs:
           TARGET: http://localhost:8080
         run: |
           set -e
-          docker run --rm --network host -v "$PWD:/zap/wrk" ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py \
-              -t "$TARGET" \
-              -r EVIDENCE/P11/zap_baseline.html \
-              -J EVIDENCE/P11/zap_baseline.json \
-              -d \
-              -m 5 \
-              -z "-config spider.maxDuration=5 -config connection.timeoutInSecs=20" \
-              || true
+          docker run --rm --network host \
+            --user root \
+            -v "$PWD:/zap/wrk" \
+            ghcr.io/zaproxy/zaproxy:stable \
+              zap-baseline.py \
+                -t "$TARGET" \
+                -r EVIDENCE/P11/zap_baseline.html \
+                -J EVIDENCE/P11/zap_baseline.json \
+                -d \
+                -m 5 \
+                -z "-config spider.maxDuration=5 -config connection.timeoutInSecs=20"
 
       - name: Upload P11 evidence
         if: always()
