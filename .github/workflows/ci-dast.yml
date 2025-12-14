@@ -51,7 +51,7 @@ jobs:
 
       - name: ZAP Baseline
         env:
-          TARGET: http://localhost:8080
+          TARGET: http://localhost:8080/health
         run: |
           set -e
           docker run --rm --network host \
