@@ -65,7 +65,7 @@ jobs:
                 -z "-config spider.excludelist.urls=.*(robots\\.txt|sitemap\\.xml)$" \
                 -d \
                 -m 5 \
-                -z "-config spider.maxDuration=5 -config connection.timeoutInSecs=20"
+                -z "-config spider.maxDuration=5 -config connection.timeoutInSecs=20" -I
 
       - name: Upload P11 evidence
         if: always()
