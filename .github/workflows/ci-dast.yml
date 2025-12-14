@@ -1,4 +1,4 @@
-name: Security - DAST (P11, ZAP baseline)
+name: Security DAST (P11, ZAP baseline)
 
 on:
   workflow_dispatch:
@@ -46,21 +46,27 @@ jobs:
           uvicorn app.main:app --host 0.0.0.0 --port "${PORT}" &
           timeout 60 bash -c 'until curl -sf "http://localhost:${PORT}/health"; do sleep 2; done'
 
+      - name: Pull ZAP image (GHCR)
+        run: |
+          # Образ ZAP теперь публикуется в GHCR, а не в Docker Hub
+          docker pull ghcr.io/zaproxy/zaproxy:stable
+
       - name: ZAP Baseline
         env:
           TARGET: http://localhost:8080
         run: |
           set -e
-          docker run --rm --network host -v "$PWD:/zap/wrk" owasp/zap2docker-stable \
+          # --network host: контейнер видит локальный сервис на http://localhost:8080 (Linux-раннер).
+          # -v "$PWD:/zap/wrk": рабочая директория для ZAP; отчёты пишем сразу в EVIDENCE/P11.
+          docker run --rm --network host -v "$PWD:/zap/wrk" ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
               -t "$TARGET" \
-              -r zap_baseline.html \
-              -J zap_baseline.json \
+              -r EVIDENCE/P11/zap_baseline.html \
+              -J EVIDENCE/P11/zap_baseline.json \
               -d \
               -m 5 \
               -z "-config spider.maxDuration=5 -config connection.timeoutInSecs=20" \
               || true
-          mv zap_baseline.* EVIDENCE/P11/ || true
 
       - name: Upload P11 evidence
         if: always()
@@ -68,3 +74,4 @@ jobs:
         with:
           name: P11_EVIDENCE
           path: EVIDENCE/P11
+          if-no-files-found: warn
