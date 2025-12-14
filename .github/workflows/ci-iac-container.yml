@@ -1,4 +1,4 @@
-name: Security: IaC & Container (P12)
+name: Security IaC & Container (P12)
 
 on:
   workflow_dispatch:
