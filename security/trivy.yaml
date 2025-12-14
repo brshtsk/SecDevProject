@@ -18,4 +18,3 @@ misconfiguration:
     - CRITICAL
 # Не падать, только собирать отчёт
 exit-code: 0
-

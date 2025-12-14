@@ -13,4 +13,3 @@ checkov:
     - CKV_K8S_37  # Image tag should be fixed (not latest)
     - CKV_DOCKER_2 # Ensure non-root user in Dockerfile where possible
 output: json
-
