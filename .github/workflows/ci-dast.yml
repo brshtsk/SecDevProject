@@ -62,6 +62,7 @@ jobs:
                 -t "$TARGET" \
                 -r EVIDENCE/P11/zap_baseline.html \
                 -J EVIDENCE/P11/zap_baseline.json \
+                -z "-config spider.excludelist.urls=.*(robots\\.txt|sitemap\\.xml)$" \
                 -d \
                 -m 5 \
                 -z "-config spider.maxDuration=5 -config connection.timeoutInSecs=20"
