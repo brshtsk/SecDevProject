@@ -30,7 +30,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -47,17 +47,13 @@ jobs:
           timeout 60 bash -c 'until curl -sf "http://localhost:${PORT}/health"; do sleep 2; done'
 
       - name: Pull ZAP image (GHCR)
-        run: |
-          # Образ ZAP теперь публикуется в GHCR, а не в Docker Hub
-          docker pull ghcr.io/zaproxy/zaproxy:stable
+        run: docker pull ghcr.io/zaproxy/zaproxy:stable
 
       - name: ZAP Baseline
         env:
           TARGET: http://localhost:8080
         run: |
           set -e
-          # --network host: контейнер видит локальный сервис на http://localhost:8080 (Linux-раннер).
-          # -v "$PWD:/zap/wrk": рабочая директория для ZAP; отчёты пишем сразу в EVIDENCE/P11.
           docker run --rm --network host -v "$PWD:/zap/wrk" ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
               -t "$TARGET" \
