@@ -8,7 +8,7 @@ from uuid import uuid4
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -33,6 +33,43 @@ rate_limiter_blocked_total = 0
 logger = logging.getLogger("rate_limiter")
 if not logger.handlers:
     logging.basicConfig(level=logging.INFO)
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+
+    path = request.url.path
+    if path in ("/", "/health"):
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, max-age=0, must-revalidate"
+        )
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    elif path in ("/robots.txt", "/sitemap.xml"):
+        response.headers["Cache-Control"] = "public, max-age=3600, immutable"
+    return response
+
+
+@app.get("/robots.txt")
+def robots():
+    content = "User-agent: *\nDisallow:"
+    return PlainTextResponse(content, media_type="text/plain; charset=utf-8")
+
+
+@app.get("/sitemap.xml")
+def sitemap():
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        "<url><loc>http://localhost:8080/</loc></url>"
+        "</urlset>"
+    )
+    return Response(content=xml, media_type="application/xml; charset=utf-8")
 
 
 # Работаем с X-Correlation-ID
@@ -321,6 +358,11 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
         detail="Внутренняя ошибка сервера",
         type_uri=_type_for_status(500),
     )
+
+
+@app.get("/")
+def root():
+    return {"status": "ok"}
 
 
 @app.get("/health")

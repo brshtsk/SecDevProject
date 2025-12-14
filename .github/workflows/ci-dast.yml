@@ -1,0 +1,76 @@
+name: Security DAST (P11, ZAP baseline)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "app/**"
+      - "src/**"
+      - ".github/workflows/ci-dast.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dast_p11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure evidence dirs
+        run: mkdir -p EVIDENCE/P11
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -c "import uvicorn" || pip install uvicorn
+
+      - name: Run app
+        env:
+          PORT: 8080
+        run: |
+          set -e
+          uvicorn app.main:app --host 0.0.0.0 --port "${PORT}" &
+          timeout 60 bash -c 'until curl -sf "http://localhost:${PORT}/health"; do sleep 2; done'
+
+      - name: Pull ZAP image (GHCR)
+        run: docker pull ghcr.io/zaproxy/zaproxy:stable
+
+      - name: ZAP Baseline
+        env:
+          TARGET: http://localhost:8080
+        run: |
+          set -e
+          docker run --rm --network host \
+            --user root \
+            -v "$PWD:/zap/wrk" \
+            ghcr.io/zaproxy/zaproxy:stable \
+              zap-baseline.py \
+                -t "$TARGET" \
+                -r EVIDENCE/P11/zap_baseline.html \
+                -J EVIDENCE/P11/zap_baseline.json \
+                -z "-config spider.excludelist.urls=.*(robots\\.txt|sitemap\\.xml)$" \
+                -d \
+                -m 5 \
+                -z "-config spider.maxDuration=5 -config connection.timeoutInSecs=20" -I
+
+      - name: Upload P11 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P11_EVIDENCE
+          path: EVIDENCE/P11
+          if-no-files-found: warn
