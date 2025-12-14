@@ -1,0 +1,22 @@
+ignored:
+  # Нерелевантно: директива MAINTAINER устарела, правило часто шумит
+  - DL4000
+  # В некоторых базовых образах отсутствует SHELL; не критично
+  - DL4005
+  # Позволяем многострочные RUN
+  - DL3059
+
+override:
+  # Требовать указание версии базового образа (не latest)
+  - rule: DL3006
+    severity: error
+  # Поощрять USER non-root
+  - rule: DL3002
+    severity: warning
+  # Минимизировать количество слоев
+  - rule: DL3007
+    severity: info
+
+format: json
+failure-threshold: warning
+
