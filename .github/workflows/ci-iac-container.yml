@@ -42,11 +42,19 @@ jobs:
 
       - name: Checkov IaC scan
         run: |
-          TARGET_DIR="iac"
+          TARGET_DIR=""
+          if [ -d "iac" ]; then TARGET_DIR="iac"; fi
           if [ -d "k8s" ]; then TARGET_DIR="k8s"; fi
           if [ -d "deploy" ]; then TARGET_DIR="deploy"; fi
+
+          if [ -z "$TARGET_DIR" ]; then
+            SCAN_PATH="/work"
+          else
+            SCAN_PATH="/work/${TARGET_DIR}"
+          fi
+
           docker run --rm -v $PWD:/work bridgecrew/checkov \
-            -d /work/${TARGET_DIR} \
+            -d /work/${SCAN_PATH} \
             --config-file /work/security/checkov.yaml \
             -o json --compact \
             > EVIDENCE/P12/checkov_report.json || true
